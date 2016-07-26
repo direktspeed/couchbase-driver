@@ -1,518 +1,108 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Couchbase-driver by bojand</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Couchbase-driver</h1>
-      <h2 class="project-tagline">An improved version of the official Couchbase driver</h2>
-      <a href="https://github.com/bojand/couchbase-driver" class="btn">View on GitHub</a>
-      <a href="https://github.com/bojand/couchbase-driver/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/bojand/couchbase-driver/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
 
-    <section class="main-content">
-      <h1>
-<a id="couchbase-driver" class="anchor" href="#couchbase-driver" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>couchbase-driver</h1>
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
 
-<p>An improved version of the official Couchbase driver.</p>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-<h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+<label for="nav-trigger" class="overlay"></label>
 
-<p><code>npm install couchbase-driver</code></p>
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li><li><a href="global.html#DBOPS">DBOPS</a></li></ul>
+</nav>
 
-<h2>
-<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h2>
+<div id="main">
+    
 
-<p>A simple alternative driver for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.1.4/">Couchbase</a> that wraps the <code>Bucket</code> from existing driver with the following modifications:</p>
+    
 
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>couchbase-driver</h1><p>An improved version of the official Couchbase driver.</p>
+<h2>Installation</h2><p><code>npm install couchbase-driver</code></p>
+<h2>Overview</h2><p>A simple alternative driver for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.1.4/">Couchbase</a> that wraps the <code>Bucket</code> from existing driver with the following modifications:</p>
 <ul>
-<li>
-<code>get</code> works on a single key or an array of keys, calling <code>Bucket.getMulti</code> if appropriate. Automatically handles
-<em>key not found</em> errors and doesn't return an error in that scenario. In case of multiple keys, optionally returns an
-array of missing keys.</li>
-<li>
-<code>remove</code> also handles <em>key not found</em> errors more gracefully.</li>
-<li>adds <code>atomic</code> function that tries to do perform <code>get</code> + <code>transform</code> + specified database operation utilizing <code>CAS</code>
-in one step until success or maximum retries have occurred.</li>
+<li><code>get</code> works on a single key or an array of keys, calling <code>Bucket.getMulti</code> if appropriate. Automatically handles<br><em>key not found</em> errors and doesn't return an error in that scenario. In case of multiple keys, optionally returns an<br>array of missing keys.</li>
+<li><code>remove</code> also handles <em>key not found</em> errors more gracefully.</li>
+<li>adds <code>atomic</code> function that tries to do perform <code>get</code> + <code>transform</code> + specified database operation utilizing <code>CAS</code><br>in one step until success or maximum retries have occurred.</li>
 <li>adds <code>Promise</code> support so that functions call be called with either Node-style callbacks or with Promises.</li>
 </ul>
-
-<h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
-
-<p>Creating:</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">couchbase</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">Driver</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase-driver<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">cluster</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">couchbase.Cluster</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase://127.0.0.1<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">bucket</span> <span class="pl-k">=</span> <span class="pl-smi">cluster</span>.<span class="pl-en">openBucket</span>(<span class="pl-s"><span class="pl-pds">'</span>default<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">driver</span> <span class="pl-k">=</span> <span class="pl-smi">Driver</span>.<span class="pl-en">create</span>(bucket);</pre></div>
-
-<p>Simple retrieval:</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-en">get</span>(<span class="pl-s"><span class="pl-pds">'</span>my_doc_key<span class="pl-pds">'</span></span>, (<span class="pl-smi">err</span>, <span class="pl-smi">res</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span> (err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err)
-  <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">res</span>.<span class="pl-c1">value</span>)
-});</pre></div>
-
-<p>If key does not exist <code>err</code> <em>and</em> <code>res</code> will be undefined.</p>
-
+<h2>Usage</h2><p>Creating:</p>
+<pre class="prettyprint source lang-js"><code>const couchbase = require('couchbase');
+const Driver = require('couchbase-driver');
+const cluster = new couchbase.Cluster('couchbase://127.0.0.1');
+const bucket = cluster.openBucket('default');
+const driver = Driver.create(bucket);</code></pre><p>Simple retrieval:</p>
+<pre class="prettyprint source lang-js"><code>driver.get('my_doc_key', (err, res) => {
+  if (err) return console.log(err)
+  console.dir(res.value)
+});</code></pre><p>If key does not exist <code>err</code> <em>and</em> <code>res</code> will be undefined.</p>
 <p>Getting multiple documents:</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-en">get</span>([<span class="pl-s"><span class="pl-pds">'</span>my_doc_key_1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>my_doc_key_2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>my_missing_doc_key_3<span class="pl-pds">'</span></span>], (<span class="pl-smi">err</span>, <span class="pl-smi">results</span>, <span class="pl-smi">missing</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span> (err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err);
-  <span class="pl-k">if</span> (<span class="pl-smi">mising</span>.<span class="pl-c1">length</span> <span class="pl-k">&gt;</span> <span class="pl-c1">0</span>) <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(missing); <span class="pl-c">// ['my_missing_doc_key_3']</span>
-    <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">res</span>.<span class="pl-c1">value</span>);
-});</pre></div>
-
-<p>"Atomic" transformations can be achieved using the <code>atomic</code> function which attempts to do <code>get</code> + <code>transform</code> +
-specified database operation where <code>CAS</code> in <code>get</code> and the final operation have to match. This uses <a href="http://caolan.github.io/async/docs.html#.retry"><code>async.retry</code></a> until successful or maximum retries have occurred,
-which can be specified in the <code>Driver</code> construction or as function option parameter.</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">function</span> <span class="pl-en">transform</span>(<span class="pl-smi">doc</span>) {
-  <span class="pl-smi">doc</span>.<span class="pl-smi">foo</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span>;
-  <span class="pl-k">return</span> {
-    value<span class="pl-k">:</span> doc,
-    action<span class="pl-k">:</span> <span class="pl-smi">Driver</span>.<span class="pl-c1">DBOPS</span>.<span class="pl-c1">UPSERT</span>
+<pre class="prettyprint source lang-js"><code>driver.get(['my_doc_key_1', 'my_doc_key_2', 'my_missing_doc_key_3'], (err, results, missing) => {
+  if (err) return console.log(err);
+  if (mising.length > 0) console.dir(missing); // ['my_missing_doc_key_3']
+    console.dir(res.value);
+});</code></pre><p>&quot;Atomic&quot; transformations can be achieved using the <code>atomic</code> function which attempts to do <code>get</code> + <code>transform</code> +<br>specified database operation where <code>CAS</code> in <code>get</code> and the final operation have to match. This uses <a href="http://caolan.github.io/async/docs.html#.retry"><code>async.retry</code></a> until successful or maximum retries have occurred,<br>which can be specified in the <code>Driver</code> construction or as function option parameter.</p>
+<pre class="prettyprint source lang-js"><code>function transform(doc) {
+  doc.foo = 'bar';
+  return {
+    value: doc,
+    action: Driver.DBOPS.UPSERT
   };
 }
 
-<span class="pl-smi">driver</span>.<span class="pl-en">atomic</span>(<span class="pl-s"><span class="pl-pds">'</span>my_doc_key<span class="pl-pds">'</span></span>, transform, (<span class="pl-smi">err</span>, <span class="pl-smi">res</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span>(err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(err);
-  <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(res);
-});</pre></div>
-
-<p>With promises:</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">result</span> <span class="pl-k">=</span> <span class="pl-k">await</span> <span class="pl-smi">driver</span>.<span class="pl-en">get</span>(<span class="pl-s"><span class="pl-pds">'</span>mykey<span class="pl-pds">'</span></span>);
-<span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">result</span>.<span class="pl-c1">value</span>); <span class="pl-c">// document</span></pre></div>
-
-<p>Note that with Promise style call and multiple keys we do not get misses.</p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">results</span> <span class="pl-k">=</span> <span class="pl-k">await</span> <span class="pl-smi">driver</span>.<span class="pl-en">get</span>([<span class="pl-s"><span class="pl-pds">'</span>mykey1<span class="pl-pds">'</span></span>, mykey2]);
-<span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">_</span>.<span class="pl-en">map</span>(results, <span class="pl-s"><span class="pl-pds">'</span>value<span class="pl-pds">'</span></span>)); <span class="pl-c">// array of documents</span></pre></div>
-
-<h2>
-<a id="api-reference" class="anchor" href="#api-reference" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Reference</h2>
-
-<p><a name="Driver"></a></p>
-
-<h3>
-<a id="driver" class="anchor" href="#driver" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Driver</h3>
-
-<p>A simple alternative driver for Couchbase that wraps the <code>Bucket</code> from existing driver and improves
-<code>get</code> and <code>remove</code> methods and adds <code>atomic</code> method.</p>
-
-<p><strong>Kind</strong>: global class  </p>
-
-<ul>
-<li>
-<a href="#Driver">Driver</a>
-
-<ul>
-<li><a href="#new_Driver_new">new Driver(bucket, options)</a></li>
-<li>
-<em>instance</em>
-
-<ul>
-<li><a href="#Driver+OPERATIONS">.OPERATIONS</a></li>
-<li><a href="#Driver+get">.get(keys, options, fn)</a></li>
-<li><a href="#Driver+remove">.remove(key, options, fn)</a></li>
-<li><a href="#Driver+atomic">.atomic(key, transform, options, fn)</a></li>
-</ul>
-</li>
-<li>
-<em>static</em>
-
-<ul>
-<li><a href="#Driver.OPERATIONS">.OPERATIONS</a></li>
-<li><a href="#Driver.isKeyNotFound">.isKeyNotFound(err)</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-<p><a name="new_Driver_new"></a></p>
-
-<h4>
-<a id="new-driverbucket-options" class="anchor" href="#new-driverbucket-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>new Driver(bucket, options)</h4>
-
-<p>Constructs the new instance. This should not be called directly, but rather use <code>create()</code>.</p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>bucket</td>
-<td><code>Object</code></td>
-<td>the Couchbase <code>Bucket</code>
-</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>Options</td>
-</tr>
-<tr>
-<td>options.atomicRetryTimes</td>
-<td><code>Number</code></td>
-<td>The number of attempts to make within <code>atomic()</code>.                                                  See <code>async.retry</code>. Default: <code>5</code>.</td>
-</tr>
-<tr>
-<td>options.atomicRetryInterval</td>
-<td><code>Number</code></td>
-<td>The time to wait between retries, in milliseconds, within <code>atomic()</code>.                                               See <code>async.retry</code>. Default: <code>0</code>.</td>
-</tr>
-<tr>
-<td>options.missing</td>
-<td><code>Boolean</code></td>
-<td>Whether to return missing. If <code>false</code> Does not return.                                    Useful for certain contexts.</td>
-</tr>
-</tbody>
-</table>
-
-<p><a name="Driver+OPERATIONS"></a></p>
-
-<h4>
-<a id="driveroperations" class="anchor" href="#driveroperations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>driver.OPERATIONS</h4>
-
-<p>Get operation enums</p>
-
-<p><strong>Kind</strong>: instance property of <code><a href="#Driver">Driver</a></code><br>
-<strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-c1">DBOPS</span>.<span class="pl-c1">UPSERT</span>;</pre></div>
-
-<p><a name="Driver+get"></a></p>
-
-<h4>
-<a id="drivergetkeys-options-fn" class="anchor" href="#drivergetkeys-options-fn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>driver.get(keys, options, fn)</h4>
-
-<p>A simplified get. Properly handles key not found errors. In case of multi call, returns array of found
-and an array of misses.</p>
-
-<p><strong>Kind</strong>: instance method of <code><a href="#Driver">Driver</a></code>  </p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>keys</td>
-<td>
-<code>String</code> | <code>Array</code>
-</td>
-<td>a single key or multiple keys</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>Options for bucket <code>get</code> function</td>
-</tr>
-<tr>
-<td>options.missing</td>
-<td><code>Boolean</code></td>
-<td>Whether to return missing. If <code>false</code> Does not return.                                    Useful for certain contexts. This option takes presidence over the one set in                                    constructor.</td>
-</tr>
-<tr>
-<td>fn</td>
-<td><code>function</code></td>
-<td>callback</td>
-</tr>
-</tbody>
-</table>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-en">get</span>(<span class="pl-s"><span class="pl-pds">'</span>my_doc_key<span class="pl-pds">'</span></span>, (<span class="pl-smi">err</span>, <span class="pl-smi">res</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span> (err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err)
-  <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">res</span>.<span class="pl-c1">value</span>)
-}</pre></div>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-en">get</span>([<span class="pl-s"><span class="pl-pds">'</span>my_doc_key_1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>my_doc_key_2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>my_missing_doc_key_3<span class="pl-pds">'</span></span>], (<span class="pl-smi">err</span>, <span class="pl-smi">results</span>, <span class="pl-smi">missing</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span> (err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err);
-  <span class="pl-k">if</span> (<span class="pl-smi">mising</span>.<span class="pl-c1">length</span> <span class="pl-k">&gt;</span> <span class="pl-c1">0</span>) <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(missing); <span class="pl-c">// ['my_missing_doc_key_3']</span>
-  <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(<span class="pl-smi">res</span>.<span class="pl-c1">value</span>);
-});</pre></div>
-
-<p><a name="Driver+remove"></a></p>
-
-<h4>
-<a id="driverremovekey-options-fn" class="anchor" href="#driverremovekey-options-fn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>driver.remove(key, options, fn)</h4>
-
-<p>Our implementation of <code>Bucket.remove</code> that properly ignores key not found errors.</p>
-
-<p><strong>Kind</strong>: instance method of <code><a href="#Driver">Driver</a></code>  </p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>key</td>
-<td><code>String</code></td>
-<td>document key to remove</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>Options to pass to <code>Bucket.remove</code>
-</td>
-</tr>
-<tr>
-<td>fn</td>
-<td><code>function</code></td>
-<td>callback</td>
-</tr>
-</tbody>
-</table>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">driver</span>.<span class="pl-en">remove</span>(<span class="pl-s"><span class="pl-pds">'</span>my_doc_key<span class="pl-pds">'</span></span>, (<span class="pl-smi">err</span>, <span class="pl-smi">res</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span> (err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err);
-});</pre></div>
-
-<p><a name="Driver+atomic"></a></p>
-
-<h4>
-<a id="driveratomickey-transform-options-fn" class="anchor" href="#driveratomickey-transform-options-fn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>driver.atomic(key, transform, options, fn)</h4>
-
-<p>Performs an "atomic" operation where it tries to first get the document given the <code>key</code>, then perform
-the function <code>transform</code> on the value and then write using the CAS value in the <code>upsert</code>.
-If the upsert fails due to a CAS value error, the whole process is retried.</p>
-
-<p><strong>Kind</strong>: instance method of <code><a href="#Driver">Driver</a></code>  </p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>key</td>
-<td><code>String</code></td>
-<td>document key</td>
-</tr>
-<tr>
-<td>transform</td>
-<td><code>function</code></td>
-<td>synchronous function to be performend on the document value. Function accepts the                               document or <code>undefined</code> if the document was not found. The function                               should perform any necessary mutation and return an object with <code>value</code>                               and <code>action</code>. <code>value</code> is the new value of the document.                               <code>action</code> should be one of <code>Driver.DBOPS</code> specifying the action                               to take with the new value.</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>String</code></td>
-<td>Options</td>
-</tr>
-<tr>
-<td>options.atomicRetryTimes</td>
-<td><code>Number</code></td>
-<td>The number of attempts to make within <code>atomic()</code>.                                                  See <code>async.retry</code>. Default: <code>5</code>.</td>
-</tr>
-<tr>
-<td>options.atomicRetryInterval</td>
-<td><code>Number</code></td>
-<td>The time to wait between retries, in milliseconds, within <code>atomic()</code>.                                               See <code>async.retry</code>. Default: <code>0</code>.</td>
-</tr>
-<tr>
-<td>fn</td>
-<td><code>function</code></td>
-<td>callback</td>
-</tr>
-</tbody>
-</table>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">function</span> <span class="pl-en">transform</span>(<span class="pl-smi">doc</span>) {
-  <span class="pl-smi">doc</span>.<span class="pl-smi">foo</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span>;
-  <span class="pl-k">return</span> {
-    value<span class="pl-k">:</span> doc,
-    action<span class="pl-k">:</span> <span class="pl-smi">Driver</span>.<span class="pl-c1">DBOPS</span>.<span class="pl-c1">UPSERT</span>
-  };
-}
-
-<span class="pl-smi">driver</span>.<span class="pl-en">atomic</span>(<span class="pl-s"><span class="pl-pds">'</span>my_doc_key<span class="pl-pds">'</span></span>, transform, (<span class="pl-smi">err</span>, <span class="pl-smi">res</span>) <span class="pl-k">=&gt;</span> {
-  <span class="pl-k">if</span>(err) <span class="pl-k">return</span> <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(err);
-  <span class="pl-en">console</span>.<span class="pl-c1">dir</span>(res);
-});</pre></div>
-
-<p><a name="Driver.OPERATIONS"></a></p>
-
-<h4>
-<a id="driveroperations-1" class="anchor" href="#driveroperations-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Driver.OPERATIONS</h4>
-
-<p>Get operation enums</p>
-
-<p><strong>Kind</strong>: static property of <code><a href="#Driver">Driver</a></code><br>
-<strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">Driver</span>.<span class="pl-c1">DBOPS</span>.<span class="pl-c1">UPSERT</span>;</pre></div>
-
-<p><a name="Driver.isKeyNotFound"></a></p>
-
-<h4>
-<a id="driveriskeynotfounderr" class="anchor" href="#driveriskeynotfounderr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Driver.isKeyNotFound(err)</h4>
-
-<p>Determines if error is a "key not found" error</p>
-
-<p><strong>Kind</strong>: static method of <code><a href="#Driver">Driver</a></code>  </p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>err</td>
-<td><code>Error</code></td>
-<td>the error to check</td>
-</tr>
-</tbody>
-</table>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-smi">Driver</span>.<span class="pl-en">isKeyNotFound</span>(err);</pre></div>
-
-<p><a name="DBOPS"></a></p>
-
-<h3>
-<a id="dbops--enum" class="anchor" href="#dbops--enum" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DBOPS : <code>enum</code>
-</h3>
-
-<p>Enum for Database operations</p>
-
-<p><strong>Kind</strong>: global constant<br>
-<strong>Read only</strong>: true<br>
-<strong>Properties</strong></p>
-
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>UPSERT</td>
-<td><code>string</code></td>
-<td><code>"upsert"</code></td>
-<td>Upsert operation</td>
-</tr>
-<tr>
-<td>REMOVE</td>
-<td><code>string</code></td>
-<td><code>"remove"</code></td>
-<td>Remove operation</td>
-</tr>
-<tr>
-<td>NOOP</td>
-<td><code>string</code></td>
-<td><code>"noop"</code></td>
-<td>No operation or action</td>
-</tr>
-</tbody>
-</table>
-
-<p><a name="create"></a></p>
-
-<h3>
-<a id="createbucket-options--driver" class="anchor" href="#createbucket-options--driver" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>create(bucket, options) ⇒ <code><a href="#Driver">Driver</a></code>
-</h3>
-
-<p>Create a Driver object by wrapping the Couchbase bucket and creates a new <code>Driver</code> instance and
-adds <code>Promise</code> support to the instance.</p>
-
-<p><strong>Kind</strong>: global function  </p>
-
-<table>
-<thead>
-<tr>
-<th>Param</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>bucket</td>
-<td><code>Object</code></td>
-<td>The Couchbase <code>Bucket</code> instance to wrap.</td>
-</tr>
-<tr>
-<td>options</td>
-<td><code>Object</code></td>
-<td>Options</td>
-</tr>
-<tr>
-<td>options.atomicRetryTimes</td>
-<td><code>Number</code></td>
-<td>The number of attempts to make within <code>atomic()</code>.                                                  See <code>async.retry</code>. Default: <code>5</code>.</td>
-</tr>
-<tr>
-<td>options.atomicRetryInterval</td>
-<td><code>Number</code></td>
-<td>The time to wait between retries, in milliseconds, within <code>atomic()</code>.                                               See <code>async.retry</code>. Default: <code>0</code>.</td>
-</tr>
-</tbody>
-</table>
-
-<p><strong>Example</strong>  </p>
-
-<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">couchbase</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">Driver</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase-driver<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">cluster</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">couchbase.Cluster</span>(<span class="pl-s"><span class="pl-pds">'</span>couchbase://127.0.0.1<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">bucket</span> <span class="pl-k">=</span> <span class="pl-smi">cluster</span>.<span class="pl-en">openBucket</span>(<span class="pl-s"><span class="pl-pds">'</span>default<span class="pl-pds">'</span></span>);
-<span class="pl-k">const</span> <span class="pl-c1">driver</span> <span class="pl-k">=</span> <span class="pl-smi">Driver</span>.<span class="pl-en">create</span>(bucket);</pre></div>
-
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/bojand/couchbase-driver">Couchbase-driver</a> is maintained by <a href="https://github.com/bojand">bojand</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
+driver.atomic('my_doc_key', transform, (err, res) => {
+  if(err) return console.dir(err);
+  console.dir(res);
+});</code></pre><p>With promises:</p>
+<pre class="prettyprint source lang-js"><code>const result = await driver.get('mykey');
+console.dir(result.value); // document</code></pre><p>Note that with Promise style call and multiple keys we do not get misses.</p>
+<pre class="prettyprint source lang-js"><code>const results = await driver.get(['mykey1', mykey2]);
+console.dir(_.map(results, 'value')); // array of documents</code></pre></article>
     </section>
 
-  
-  </body>
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jul 26 2016 11:59:00 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
 </html>
