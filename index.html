@@ -1,1 +1,109 @@
-<!DOCTYPE html><html lang="en"><head>    <meta charset="utf-8">    <title>Home - Documentation</title>    <script src="scripts/prettify/prettify.js"></script>    <script src="scripts/prettify/lang-css.js"></script>    <!--[if lt IE 9]>      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>    <![endif]-->    <link type="text/css" rel="stylesheet" href="styles/prettify.css">    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css"></head><body><a href="https://github.com/bojand/couchbase-driver"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a><input type="checkbox" id="nav-trigger" class="nav-trigger" /><label for="nav-trigger" class="navicon-button x">  <div class="navicon"></div></label><label for="nav-trigger" class="overlay"></label><nav>    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#DBOPS">DBOPS</a></li></ul></nav><div id="main">                    <section class="readme">        <article><h1>couchbase-driver</h1><p>An improved version of the official Couchbase driver.</p><h2>Installation</h2><p><code>npm install couchbase-driver</code></p><h2>Overview</h2><p>A simple alternative driver for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.1.4/">Couchbase</a> that wraps the <code>Bucket</code> from existing driver with the following modifications:</p><ul><li><code>get</code> works on a single key or an array of keys, calling <code>Bucket.getMulti</code> if appropriate. Automatically handles<br><em>key not found</em> errors and doesn't return an error in that scenario. In case of multiple keys, optionally returns an<br>array of missing keys.</li><li><code>remove</code> also handles <em>key not found</em> errors more gracefully.</li><li>adds <code>atomic</code> function that tries to do perform <code>get</code> + <code>transform</code> + specified database operation utilizing <code>CAS</code><br>in one step until success or maximum retries have occurred.</li><li>adds <code>Promise</code> support so that functions call be called with either Node-style callbacks or with Promises.</li></ul><h2>Usage</h2><p>Creating:</p><pre class="prettyprint source lang-js"><code>const couchbase = require('couchbase');const Driver = require('couchbase-driver');const cluster = new couchbase.Cluster('couchbase://127.0.0.1');const bucket = cluster.openBucket('default');const driver = Driver.create(bucket);</code></pre><p>Simple retrieval:</p><pre class="prettyprint source lang-js"><code>driver.get('my_doc_key', (err, res) => {  if (err) return console.log(err)  console.dir(res.value)});</code></pre><p>If key does not exist <code>err</code> <em>and</em> <code>res</code> will be undefined.</p><p>Getting multiple documents:</p><pre class="prettyprint source lang-js"><code>driver.get(['my_doc_key_1', 'my_doc_key_2', 'my_missing_doc_key_3'], (err, results, missing) => {  if (err) return console.log(err);  if (mising.length > 0) console.dir(missing); // ['my_missing_doc_key_3']    console.dir(res.value);});</code></pre><p>&quot;Atomic&quot; transformations can be achieved using the <code>atomic</code> function which attempts to do <code>get</code> + <code>transform</code> +<br>specified database operation where <code>CAS</code> in <code>get</code> and the final operation have to match. This uses <a href="http://caolan.github.io/async/docs.html#.retry"><code>async.retry</code></a> until successful or maximum retries have occurred,<br>which can be specified in the <code>Driver</code> construction or as function option parameter.</p><pre class="prettyprint source lang-js"><code>function transform(doc) {  doc.foo = 'bar';  return {    value: doc,    action: Driver.DBOPS.UPSERT  };}driver.atomic('my_doc_key', transform, (err, res) => {  if(err) return console.dir(err);  console.dir(res);});</code></pre><p>With promises:</p><pre class="prettyprint source lang-js"><code>const result = await driver.get('mykey');console.dir(result.value); // document</code></pre><p>Note that with Promise style call and multiple keys we do not get misses.</p><pre class="prettyprint source lang-js"><code>const results = await driver.get(['mykey1', mykey2]);console.dir(_.map(results, 'value')); // array of documents</code></pre></article>    </section></div><br class="clear"><footer>    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jul 26 2016 14:40:51 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.</footer><script>prettyPrint();</script><script src="scripts/linenumber.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body><a href="https://github.com/bojand/couchbase-driver"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#DBOPS">DBOPS</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>couchbase-driver</h1><p>An improved version of the official Couchbase driver.</p>
+<h2>Installation</h2><p><code>npm install couchbase-driver</code></p>
+<h2>Overview</h2><p>A simple alternative driver for <a href="http://docs.couchbase.com/sdk-api/couchbase-node-client-2.1.4/">Couchbase</a> that wraps the <code>Bucket</code> from existing driver with the following modifications:</p>
+<ul>
+<li><code>get</code> works on a single key or an array of keys, calling <code>Bucket.getMulti</code> if appropriate. Automatically handles<br><em>key not found</em> errors and doesn't return an error in that scenario. In case of multiple keys, optionally returns an<br>array of missing keys.</li>
+<li><code>remove</code> also handles <em>key not found</em> errors more gracefully.</li>
+<li>adds <code>atomic</code> function that tries to do perform <code>get</code> + <code>transform</code> + specified database operation utilizing <code>CAS</code><br>in one step until success or maximum retries have occurred.</li>
+<li>adds <code>Promise</code> support so that functions call be called with either Node-style callbacks or with Promises.</li>
+</ul>
+<h2>Usage</h2><p>Creating:</p>
+<pre class="prettyprint source lang-js"><code>const couchbase = require('couchbase');
+const Driver = require('couchbase-driver');
+const cluster = new couchbase.Cluster('couchbase://127.0.0.1');
+const bucket = cluster.openBucket('default');
+const driver = Driver.create(bucket);</code></pre><p>Simple retrieval:</p>
+<pre class="prettyprint source lang-js"><code>driver.get('my_doc_key', (err, res) => {
+  if (err) return console.log(err)
+  console.dir(res.value)
+});</code></pre><p>If key does not exist <code>err</code> <em>and</em> <code>res</code> will be undefined.</p>
+<p>Getting multiple documents:</p>
+<pre class="prettyprint source lang-js"><code>driver.get(['my_doc_key_1', 'my_doc_key_2', 'my_missing_doc_key_3'], (err, results, missing) => {
+  if (err) return console.log(err);
+  if (mising.length > 0) console.dir(missing); // ['my_missing_doc_key_3']
+    console.dir(res.value);
+});</code></pre><p>&quot;Atomic&quot; transformations can be achieved using the <code>atomic</code> function which attempts to do <code>get</code> + <code>transform</code> +<br>specified database operation where <code>CAS</code> in <code>get</code> and the final operation have to match. This uses <a href="http://caolan.github.io/async/docs.html#.retry"><code>async.retry</code></a> until successful or maximum retries have occurred,<br>which can be specified in the <code>Driver</code> construction or as function option parameter.</p>
+<pre class="prettyprint source lang-js"><code>function transform(doc) {
+  doc.foo = 'bar';
+  return {
+    value: doc,
+    action: Driver.DBOPS.UPSERT
+  };
+}
+
+driver.atomic('my_doc_key', transform, (err, res) => {
+  if(err) return console.dir(err);
+  console.dir(res);
+});</code></pre><p>With promises:</p>
+<pre class="prettyprint source lang-js"><code>const result = await driver.get('mykey');
+console.dir(result.value); // document</code></pre><p>Note that with Promise style call and multiple keys we do not get misses.</p>
+<pre class="prettyprint source lang-js"><code>const results = await driver.get(['mykey1', mykey2]);
+console.dir(_.map(results, 'value')); // array of documents</code></pre><h2>License</h2><p>Copyright 2016 Bojan D.</p>
+<p>Licensed under the MIT License.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jul 26 2016 15:00:18 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
