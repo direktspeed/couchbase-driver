@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li><li><a href="global.html#DBOPS">DBOPS</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li><li><a href="global.html#OPERATIONS">OPERATIONS</a></li></ul>
 </nav>
 
 <div id="main">
@@ -332,7 +332,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line65">line 65</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line66">line 66</a>
     </li></ul></dd>
     
 
@@ -383,7 +383,8 @@
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>Driver.DBOPS.UPSERT;</code></pre>
+    <pre class="prettyprint"><code>const Driver = require('couchbase-driver').Driver;
+console.log(Driver.OPERATIONS.UPSERT);</code></pre>
 
 
 
@@ -451,7 +452,7 @@
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>driver.DBOPS.UPSERT;</code></pre>
+    <pre class="prettyprint"><code>driver.OPERATIONS.UPSERT;</code></pre>
 
 
 
@@ -478,7 +479,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line75">line 75</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line76">line 76</a>
     </li></ul></dd>
     
 
@@ -616,7 +617,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line254">line 254</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line255">line 255</a>
     </li></ul></dd>
     
 
@@ -673,7 +674,7 @@
   doc.foo = 'bar';
   return {
     value: doc,
-    action: Driver.DBOPS.UPSERT
+    action: OPERATIONS.UPSERT
   };
 }
 
@@ -749,7 +750,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
 
             
 
-            <td class="description last"><p>synchronous function to be performend on the document value. Function accepts the<br>                              document or <code>undefined</code> if the document was not found. The function<br>                              should perform any necessary mutation and return an object with <code>value</code><br>                              and <code>action</code>. <code>value</code> is the new value of the document.<br>                              <code>action</code> should be one of <code>Driver.DBOPS</code> specifying the action<br>                              to take with the new value.</p></td>
+            <td class="description last"><p>synchronous function to be performend on the document value. Function accepts the<br>                              document or <code>undefined</code> if the document was not found. The function<br>                              should perform any necessary mutation and return an object with <code>value</code><br>                              and <code>action</code>. <code>value</code> is the new value of the document.<br>                              <code>action</code> should be one of <code>OPERATIONS</code> specifying the action<br>                              to take with the new value.</p></td>
         </tr>
 
     
@@ -906,7 +907,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line115">line 115</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line116">line 116</a>
     </li></ul></dd>
     
 
@@ -1151,7 +1152,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line197">line 197</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line198">line 198</a>
     </li></ul></dd>
     
 
@@ -1338,7 +1339,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Jul 26 2016 23:19:06 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 10:22:36 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
