@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li><li><a href="global.html#OPERATIONS">OPERATIONS</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.create">create</a></li><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -48,6 +48,7 @@ const debug = require('debug')('couchbase-driver');
  * Enum for Database operations
  * @readonly
  * @enum {string}
+ * @memberof Driver
  */
 const OPERATIONS = {
   /** Upsert operation */
@@ -65,13 +66,12 @@ const defaultOptions = {
 };
 
 export class Driver {
-
   /**
    * @classdesc A simple alternative driver for Couchbase that wraps the `Bucket` from existing driver and improves
    * &lt;code>get&lt;/code> and &lt;code>remove&lt;/code> methods and adds &lt;code>atomic&lt;/code> method.
    *
    * @description
-   * Constructs the new instance. This should not be called directly, but rather use &lt;code>create()&lt;/code>.
+   * Constructs the new instance. This should not be called directly, but rather use &lt;code>Driver.create()&lt;/code>.
    *
    * @param {Object} bucket the Couchbase &lt;code>Bucket&lt;/code>
    * @param options {Object} Options
@@ -90,7 +90,9 @@ export class Driver {
   /**
    * Get operation enums
    * @example
-   * driver.OPERATIONS.UPSERT;
+   * const Driver = require('couchbase-driver');
+   * const driver = Driver.create(bucket);
+   * console.log(driver.OPERATIONS.UPSERT);
    */
   get OPERATIONS() {
     return OPERATIONS;
@@ -99,7 +101,7 @@ export class Driver {
   /**
    * Get operation enums
    * @example
-   * const Driver = require('couchbase-driver').Driver;
+   * const Driver = require('couchbase-driver');
    * console.log(Driver.OPERATIONS.UPSERT);
    */
   static get OPERATIONS() {
@@ -316,61 +318,61 @@ export class Driver {
       });
     }, fn);
   }
-}
 
-/**
- * Create a Driver object by wrapping the Couchbase bucket and creates a new &lt;code>Driver&lt;/code> instance and
- * adds &lt;code>Promise&lt;/code> support to the instance.
- * @param bucket {Object} The Couchbase &lt;code>Bucket&lt;/code> instance to wrap.
- * @param options {Object} Options
- * @param {Number} options.atomicRetryTimes - The number of attempts to make within &lt;code>atomic()&lt;/code>.
- *                                             	 See &lt;code>async.retry&lt;/code>. Default: &lt;code>5&lt;/code>.
- * @param {Number} options.atomicRetryInterval - The time to wait between retries, in milliseconds, within &lt;code>atomic()&lt;/code>.
- *                                             	 See &lt;code>async.retry&lt;/code>. Default: &lt;code>0&lt;/code>.
- * @returns {Driver}
- * @example
- * const couchbase = require('couchbase');
- * const create = require('couchbase-driver').create;
- * const cluster = new couchbase.Cluster('couchbase://127.0.0.1');
- * const bucket = cluster.openBucket('default');
- * const driver = create(bucket);
- */
-export function create(bucket, options) {
-  // wrap the class
-  const bucketPrototype = Object.getPrototypeOf(bucket);
-  let fnNames = [];
-  let p;
-  for (p in bucketPrototype) {
-    if (bucketPrototype.hasOwnProperty(p) &amp;&amp; p.charAt(0) !== '_' &amp;&amp;
-      typeof bucketPrototype[p] === 'function' &amp;&amp; !Driver.prototype[p]) {
-      fnNames.push(p);
+  /**
+   * Create a Driver object by wrapping the Couchbase bucket and creates a new &lt;code>Driver&lt;/code> instance and
+   * adds &lt;code>Promise&lt;/code> support to the instance.
+   * @param bucket {Object} The Couchbase &lt;code>Bucket&lt;/code> instance to wrap.
+   * @param options {Object} Options
+   * @param {Number} options.atomicRetryTimes - The number of attempts to make within &lt;code>atomic()&lt;/code>.
+   *                                             	 See &lt;code>async.retry&lt;/code>. Default: &lt;code>5&lt;/code>.
+   * @param {Number} options.atomicRetryInterval - The time to wait between retries, in milliseconds, within &lt;code>atomic()&lt;/code>.
+   *                                             	 See &lt;code>async.retry&lt;/code>. Default: &lt;code>0&lt;/code>.
+   * @returns {Driver}
+   * @example
+   * const couchbase = require('couchbase');
+   * const Driver = require('couchbase-driver');
+   * const cluster = new couchbase.Cluster('couchbase://127.0.0.1');
+   * const bucket = cluster.openBucket('default');
+   * const driver = Driver.create(bucket);
+   */
+  static create(bucket, options) {
+    // wrap the class
+    const bucketPrototype = Object.getPrototypeOf(bucket);
+    let fnNames = [];
+    let p;
+    for (p in bucketPrototype) {
+      if (bucketPrototype.hasOwnProperty(p) &amp;&amp; p.charAt(0) !== '_' &amp;&amp;
+        typeof bucketPrototype[p] === 'function' &amp;&amp; !Driver.prototype[p]) {
+        fnNames.push(p);
+      }
     }
+
+    fnNames.forEach(fnName => {
+      Driver.prototype[fnName] = function () {
+        this.bucket[fnName](...arguments);
+      };
+    });
+
+    // craete the instance
+    const d = new Driver(bucket, options);
+
+    // Promisify the instance to allow both callback and Promise based invokation
+    const names = Object.getOwnPropertyNames(Object.getPrototypeOf(d));
+    fnNames = _.filter(names, name => {
+      return typeof Driver.prototype[name] === 'function' &amp;&amp; name !== 'constructor';
+    });
+
+    fnNames.forEach(name => {
+      const originalFn = d[name];
+      d[name] = function () {
+        const lastArg = arguments[arguments.length - 1];
+        return bluebird.promisify(originalFn, { context: d })(...arguments).asCallback(lastArg, { spread: true });
+      };
+    });
+
+    return d;
   }
-
-  fnNames.forEach(fnName => {
-    Driver.prototype[fnName] = function () {
-      this.bucket[fnName](...arguments);
-    };
-  });
-
-  // craete the instance
-  const d = new Driver(bucket, options);
-
-  // Promisify the instance to allow both callback and Promise based invokation
-  const names = Object.getOwnPropertyNames(Object.getPrototypeOf(d));
-  fnNames = _.filter(names, name => {
-    return typeof Driver.prototype[name] === 'function' &amp;&amp; name !== 'constructor';
-  });
-
-  fnNames.forEach(name => {
-    const originalFn = d[name];
-    d[name] = function () {
-      const lastArg = arguments[arguments.length - 1];
-      return bluebird.promisify(originalFn, { context: d })(...arguments).asCallback(lastArg, { spread: true });
-    };
-  });
-
-  return d;
 }
 </code></pre>
         </article>
@@ -384,7 +386,7 @@ export function create(bucket, options) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 11:01:29 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 16:51:00 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
