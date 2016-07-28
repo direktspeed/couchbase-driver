@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.create">create</a></li><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.create">create</a></li><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#getAndLock">getAndLock</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -652,7 +652,7 @@ console.log(driver.OPERATIONS.UPSERT);</code></pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line300">line 300</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line332">line 332</a>
     </li></ul></dd>
     
 
@@ -1045,7 +1045,7 @@ const driver = Driver.create(bucket);</code></pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line257">line 257</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line276">line 276</a>
     </li></ul></dd>
     
 
@@ -1568,6 +1568,193 @@ driver.atomic('my_doc_key', transform, (err, res) => {
 
     
 
+    <h4 class="name" id="getAndLock"><span class="type-signature"></span>getAndLock<span class="signature">(key, options, fn)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line197">line 197</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Our implementation of <code>Bucket.getAndLock</code> that properly ignores key not found errors.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>driver.getAndLock('my_doc_key', (err, res) => {
+  if (err) return console.log(err);
+  console.dir(res.value)
+});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>document key to get and lock</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Options to pass to <code>Bucket.getAndLock</code></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>callback</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="remove"><span class="type-signature"></span>remove<span class="signature">(key, options, fn)</span><span class="type-signature"></span></h4>
 
     
@@ -1580,7 +1767,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line200">line 200</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line223">line 223</a>
     </li></ul></dd>
     
 
@@ -1767,7 +1954,7 @@ driver.atomic('my_doc_key', transform, (err, res) => {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 16:51:00 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Jul 28 2016 08:51:45 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

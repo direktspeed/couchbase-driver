@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.create">create</a></li><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Driver.html">Driver</a><ul class='methods'><li data-type='method'><a href="Driver.html#.create">create</a></li><li data-type='method'><a href="Driver.html#.isKeyNotFound">isKeyNotFound</a></li><li data-type='method'><a href="Driver.html#atomic">atomic</a></li><li data-type='method'><a href="Driver.html#get">get</a></li><li data-type='method'><a href="Driver.html#getAndLock">getAndLock</a></li><li data-type='method'><a href="Driver.html#remove">remove</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -82,9 +82,9 @@ export class Driver {
    * @param {Boolean} options.missing - Whether to return missing. If &lt;code>false&lt;/code> Does not return.
    *                                    Useful for certain contexts. Defalt: &lt;code>true&lt;/code>.
    */
-  constructor(bucket, options) {
+  constructor(bucket, options = {}) {
     this.bucket = bucket;
-    this.config = _.defaults(options || {}, defaultOptions);
+    this.config = _.defaults(options, defaultOptions);
   }
 
   /**
@@ -154,14 +154,10 @@ export class Driver {
    *   console.dir(res.value);
    * });
    */
-  get(keys, options, fn) {
+  get(keys, options = { missing: true }, fn = _.noop) {
     if (options instanceof Function) {
       fn = options;
       options = { missing: true };
-    }
-
-    if (!fn) {
-      fn = _.noop;
     }
 
     if (!keys || (Array.isArray(keys) &amp;&amp; !keys.length)) {
@@ -171,7 +167,7 @@ export class Driver {
     }
 
     if (Array.isArray(keys)) {
-      debug(`driver.getMulti. keys: ${keys}`);
+      debug(`Driver.getMulti. keys: ${keys}`);
       this.bucket.getMulti(keys, (err, getRes) => {
         if (err &amp;&amp; _.isObject(err)) {
           return fn(err);
@@ -215,7 +211,7 @@ export class Driver {
         return fn(errors, results, misses);
       });
     } else {
-      debug(`driver.get. keys: ${keys}`);
+      debug(`Driver.get. keys: ${keys}`);
       this.bucket.get(keys, options, (err, getRes) => {
         if (err &amp;&amp; Driver.isKeyNotFound(err)) {
           err = null;
@@ -224,6 +220,33 @@ export class Driver {
         return fn(err, getRes);
       });
     }
+  }
+
+  /**
+   * Our implementation of &lt;code>Bucket.getAndLock&lt;/code> that properly ignores key not found errors.
+   * @param {String} key - document key to get and lock
+   * @param {Object} options - Options to pass to &lt;code>Bucket.getAndLock&lt;/code>
+   * @param {Function} fn - callback
+   * @example
+   * driver.getAndLock('my_doc_key', (err, res) => {
+   *   if (err) return console.log(err);
+   *   console.dir(res.value)
+   * });
+   */
+  getAndLock(key, options = {}, fn = _.noop) {
+    if (options instanceof Function) {
+      fn = options;
+      options = {};
+    }
+
+    debug(`Driver.getAndLock. key: ${key}`);
+    this.bucket.getAndLock(key, options, (err, getRes) => {
+      if (err &amp;&amp; Driver.isKeyNotFound(err)) {
+        err = null;
+      }
+
+      return fn(err, getRes);
+    });
   }
 
   /**
@@ -236,14 +259,10 @@ export class Driver {
    *   if (err) return console.log(err);
    * });
    */
-  remove(key, options, fn) {
+  remove(key, options = {}, fn = _.noop) {
     if (options instanceof Function) {
       fn = options;
       options = {};
-    }
-
-    if (!fn) {
-      fn = _.noop;
     }
 
     if (!key) {
@@ -293,28 +312,41 @@ export class Driver {
    *   console.dir(res);
    * });
    */
-  atomic(key, transform, options, fn) {
+  atomic(key, transform, options = {}, fn = _.noop) {
     if (options instanceof Function) {
       fn = options;
       options = {};
     }
 
-    const retryOptions = _.defaults(options || {}, this.config);
+    const retryOptions = _.defaults(options, this.config);
 
+    debug(`Driver.atomic. key: ${key}`);
     async.retry(retryOptions, rfn => {
-      this.get(key, (err, doc) => {
+      this.getAndLock(key, (err, doc) => {
         if (err) {
           return rfn(err);
         }
 
         const opr = transform(doc ? doc.value : undefined);
         const opts = doc ? { cas: doc.cas } : {};
+        debug(`Driver.atomic. action: ${opr.action}`);
         if (opr.action === OPERATIONS.NOOP) {
-          return rfn(null, opr.value);
+          if (!doc) {
+            return rfn(err, opr.value);
+          }
+          this.bucket.unlock(key, doc.cas, err => {
+            return rfn(err, opr.value);
+          });
         } else if (opr.action === OPERATIONS.UPSERT &amp;&amp; opr.value) {
           return this.bucket.upsert(key, opr.value, opts, rfn);
+        } else {
+          this.bucket.unlock(key, doc.cas, (err, doc2) => {
+            if (err) {
+              return rfn(err);
+            }
+            return this.remove(key, { cas: doc2.cas }, rfn);
+          });
         }
-        return this.bucket.remove(key, opts, rfn);
       });
     }, fn);
   }
@@ -336,7 +368,7 @@ export class Driver {
    * const bucket = cluster.openBucket('default');
    * const driver = Driver.create(bucket);
    */
-  static create(bucket, options) {
+  static create(bucket, options = {}) {
     // wrap the class
     const bucketPrototype = Object.getPrototypeOf(bucket);
     let fnNames = [];
@@ -386,7 +418,7 @@ export class Driver {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jul 27 2016 16:51:00 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Jul 28 2016 08:51:45 GMT-0300 (ADT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
